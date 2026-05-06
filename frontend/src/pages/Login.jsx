@@ -99,7 +99,6 @@ const Login = () => {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
-//Iam desalegned by desalegn
           <p className="mt-6 text-center text-gray-600 dark:text-slate-400">
             Don't have an account?{' '}
             <Link to="/register" className="text-primary-500 hover:text-primary-600 font-medium">
