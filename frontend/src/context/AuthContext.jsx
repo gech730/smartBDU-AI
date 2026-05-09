@@ -27,9 +27,9 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           const res = await authAPI.getProfile();
-          if (res.success && res.user) {
-            setUser(res.user);
-            localStorage.setItem('user', JSON.stringify(res.user));
+          if (res.data.success && res.data.user) {
+            setUser(res.data.user);
+            localStorage.setItem('user', JSON.stringify(res.data.user));
           }
         } catch (error) {
           console.error('Auth init error:', error);
@@ -50,23 +50,25 @@ export const AuthProvider = ({ children }) => {
     
     const res = await authAPI.login(credentials);
     
-    if (res.success && res.user) {
-      setUser(res.user);
-      localStorage.setItem('user', JSON.stringify(res.user));
+    if (res.data.success && res.data.user) {
+      localStorage.setItem('token', res.data.token);
+      setUser(res.data.user);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
     }
     
-    return res;
+    return res.data;
   };
 
   const register = async (data) => {
     const res = await authAPI.register(data);
     
-    if (res.success && res.user) {
-      setUser(res.user);
-      localStorage.setItem('user', JSON.stringify(res.user));
+    if (res.data.success && res.data.user) {
+      localStorage.setItem('token', res.data.token);
+      setUser(res.data.user);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
     }
     
-    return res;
+    return res.data;
   };
 
   const logout = () => {
@@ -78,12 +80,12 @@ export const AuthProvider = ({ children }) => {
   const updateUser = async (data) => {
     const res = await authAPI.updateProfile(data);
     
-    if (res.success && res.user) {
-      setUser(res.user);
-      localStorage.setItem('user', JSON.stringify(res.user));
+    if (res.data.success && res.data.user) {
+      setUser(res.data.user);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
     }
     
-    return res;
+    return res.data;
   };
 
   return (

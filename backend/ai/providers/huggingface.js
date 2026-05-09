@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const HF_API_URL = 'https://router.huggingface.co/v1';
-const HF_MODEL = 'meta-llama/Llama-3.2-1B-Instruct';
+const HF_MODEL = process.env.HF_MODEL || 'meta-llama/Llama-3.2-1B-Instruct';
 
 let hfClient = null;
 

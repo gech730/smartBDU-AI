@@ -71,30 +71,33 @@ SmartBDU is a comprehensive smart campus web application for Bahir Dar Universit
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 18+ or later
 - MongoDB (local or Atlas)
-- Ollama (recommended) or HuggingFace API
+- Ollama (recommended) or HuggingFace API credentials
 
 ### Backend Setup
 
 ```bash
 cd backend
-
-# Install dependencies
 npm install
-
-# Copy environment
 cp .env.example .env
-# Edit .env with your settings
+```
 
-# Start MongoDB (if local)
-# Or use MongoDB Atlas
+Open `backend/.env` and configure:
+- `MONGODB_URI` - e.g. `mongodb://localhost:27017/smartbdu`
+- `JWT_SECRET` - strong random string
+- `AI_PROVIDER` - `ollama` or `huggingface`
+- `HF_API_KEY` / `HF_MODEL` if using HuggingFace
+- `OLLAMA_URL` / `OLLAMA_MODEL` if using Ollama
+- `FRONTEND_URL` - `http://localhost:3000`
 
-# Start Ollama (recommended)
-ollama pull mistral
-ollama serve
+Start database and AI provider:
+- Local MongoDB: start the service or use Docker
+- Ollama: `ollama pull mistral` and `ollama serve`
 
-# Start server
+Then start the backend:
+
+```bash
 npm run dev
 ```
 
@@ -102,21 +105,69 @@ npm run dev
 
 ```bash
 cd frontend
-
-# Install dependencies
 npm install
+cp .env.example .env
+```
 
-# Create .env
-echo "VITE_API_URL=http://localhost:4000/api" > .env
+Open `frontend/.env` and confirm:
+- `VITE_API_URL=http://localhost:5000/api`
 
-# Start development
+Start the frontend:
+
+```bash
 npm run dev
 ```
 
 ### Access the Application
 - Frontend: http://localhost:3000
-- Backend API: http://localhost:4000/api
-- Health Check: http://localhost:4000/api/health
+- Backend API: http://localhost:5000/api
+- Health Check: http://localhost:5000/api/health
+
+## 🚀 Production Deployment
+
+### 1. Build frontend for production
+
+```bash
+cd frontend
+npm install
+npm run build
+```
+
+Copy the generated `dist/` folder to your static host or serve it from your backend web server.
+
+### 2. Configure backend for production
+
+```bash
+cd backend
+npm install
+cp .env.example .env
+```
+
+Edit `backend/.env` with production values:
+- `PORT=5000`
+- `MONGODB_URI` to your production MongoDB
+- `JWT_SECRET` to a secure secret
+- `AI_PROVIDER` and model provider credentials
+- `FRONTEND_URL` to your production frontend URL
+
+### 3. Start the backend in production
+
+```bash
+npm start
+```
+
+### 4. Deploy options
+
+- **Heroku / Railway / Fly.io**: Deploy backend with environment variables set in dashboard.
+- **Vercel / Netlify**: Deploy frontend from `frontend/` and point `VITE_API_URL` to backend.
+- **Docker**: Build containers for backend and frontend, then deploy together.
+
+### 5. Verify deployment
+
+- Visit frontend URL.
+- Confirm `/api/health` returns `status: ok`.
+- Test login and registration flows.
+- Validate AI provider with chat and roadmap features.
 
 ## 📁 Project Structure
 
@@ -316,7 +367,7 @@ npm run validate
 rm -rf node_modules/.vite
 
 # Check API connection
-curl http://localhost:4000/api/health
+curl http://localhost:5000/api/health
 ```
 
 ## 📄 Documentation

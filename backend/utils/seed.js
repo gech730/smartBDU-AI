@@ -1,5 +1,7 @@
 import Department from '../models/Department.js';
 import BDUInfo from '../models/BDUInfo.js';
+import User from '../models/User.js';
+import bcrypt from 'bcryptjs';
 
 const departments = [
   {
@@ -679,6 +681,90 @@ const seedDepartments = async () => {
 const seedAll = async () => {
   await seedDepartments();
   await seedBDUInfo();
+  await seedDemoUsers();
+};
+
+const demoUsers = [
+  {
+    universityId: 'BDU1234567',
+    email: 'student@bdu.edu.et',
+    password: 'password123',
+    name: 'Demo Student',
+    role: 'student',
+    department: 'Computer Science',
+    yearOfStudy: 3,
+    program: 'undergraduate',
+    interests: ['Programming', 'AI', 'Web Development'],
+    favoriteSubjects: ['Mathematics', 'Physics'],
+    goals: ['Software Developer', 'Data Scientist']
+  },
+  {
+    universityId: 'BDU2234567',
+    email: 'john@bdu.edu.et',
+    password: 'password123',
+    name: 'John Doe',
+    role: 'student',
+    department: 'Electrical Engineering',
+    yearOfStudy: 2,
+    program: 'undergraduate',
+    interests: ['Electronics', 'Renewable Energy'],
+    favoriteSubjects: ['Physics', 'Mathematics'],
+    goals: ['Electrical Engineer']
+  },
+  {
+    universityId: 'BDU3234567',
+    email: 'sarah@bdu.edu.et',
+    password: 'password123',
+    name: 'Sarah Ali',
+    role: 'student',
+    department: 'Information Systems',
+    yearOfStudy: 4,
+    program: 'undergraduate',
+    interests: ['Business Analysis', 'Data Analytics'],
+    favoriteSubjects: ['Business', 'Statistics'],
+    goals: ['Business Analyst', 'Project Manager']
+  },
+  {
+    universityId: 'BDU4234567',
+    email: 'admin@bdu.edu.et',
+    password: 'admin123',
+    name: 'Admin User',
+    role: 'admin',
+    department: 'Computing Center',
+    interests: ['Technology', 'Management'],
+    favoriteSubjects: ['Computer Science'],
+    goals: ['System Administrator']
+  }
+];
+
+const seedDemoUsers = async () => {
+  try {
+    const demoEmails = demoUsers.map(u => u.email);
+    const existingUsers = await User.find({ email: { $in: demoEmails } });
+    
+    if (existingUsers.length < demoUsers.length) {
+      const existingEmails = existingUsers.map(u => u.email);
+      const newUsers = demoUsers.filter(u => !existingEmails.includes(u.email));
+      
+      if (newUsers.length > 0) {
+        const usersWithHashedPassword = await Promise.all(
+          newUsers.map(async (user) => {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(user.password, salt);
+            return { ...user, password: hashedPassword };
+          })
+        );
+        await User.insertMany(usersWithHashedPassword);
+        console.log(`Seeded ${newUsers.length} new demo users`);
+      } else {
+        console.log('Demo users already exist');
+      }
+    } else {
+      console.log('Demo users already exist');
+    }
+  } catch (error) {
+    console.error('Error seeding demo users:', error);
+  }
 };
 
 export default seedAll;

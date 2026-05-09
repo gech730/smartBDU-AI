@@ -112,113 +112,144 @@ const CVGenerator = () => {
   const downloadPDF = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     let y = 20;
 
-    doc.setFontSize(20);
-    doc.setTextColor(99, 102, 241);
-    doc.text(formData.fullName, pageWidth / 2, y, { align: 'center' });
-    y += 8;
+    // Header with gradient background
+    doc.setFillColor(99, 102, 241);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    doc.setFontSize(24);
+    doc.setTextColor(255, 255, 255);
+    doc.text(formData.fullName, pageWidth / 2, 25, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    doc.text(`${formData.email}${formData.phone ? ' | ' + formData.phone : ''}`, pageWidth / 2, 35, { align: 'center' });
+    
+    y = 50;
 
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`${formData.email} | ${formData.phone}`, pageWidth / 2, y, { align: 'center' });
-    y += 15;
-
+    // Career Goal
     if (formData.careerGoal) {
-      doc.setFontSize(14);
+      doc.setFontSize(16);
       doc.setTextColor(99, 102, 241);
       doc.text('CAREER OBJECTIVE', 20, y);
-      y += 8;
-      doc.setFontSize(10);
+      y += 10;
+      doc.setFontSize(11);
       doc.setTextColor(60, 60, 60);
       const goalLines = doc.splitTextToSize(formData.careerGoal, pageWidth - 40);
       doc.text(goalLines, 20, y);
-      y += goalLines.length * 6 + 10;
+      y += goalLines.length * 6 + 15;
     }
 
+    // Education
     if (formData.education.length > 0 && formData.education[0].institution) {
-      doc.setFontSize(14);
+      doc.setFontSize(16);
       doc.setTextColor(99, 102, 241);
       doc.text('EDUCATION', 20, y);
-      y += 8;
+      y += 10;
       
       formData.education.forEach(edu => {
         if (edu.institution) {
-          doc.setFontSize(11);
+          doc.setFontSize(12);
           doc.setTextColor(0, 0, 0);
+          doc.setFont('helvetica', 'bold');
           doc.text(`${edu.degree} in ${edu.field}`, 20, y);
-          y += 6;
+          y += 7;
+          doc.setFont('helvetica', 'normal');
           doc.setFontSize(10);
           doc.setTextColor(100, 100, 100);
           doc.text(`${edu.institution} | ${edu.year}`, 20, y);
-          y += 10;
+          y += 12;
         }
       });
+      y += 5;
     }
 
+    // Skills
     if (formData.skills.length > 0) {
-      doc.setFontSize(14);
+      doc.setFontSize(16);
       doc.setTextColor(99, 102, 241);
       doc.text('SKILLS', 20, y);
-      y += 8;
-      doc.setFontSize(10);
+      y += 10;
+      doc.setFontSize(11);
       doc.setTextColor(60, 60, 60);
-      doc.text(formData.skills.join(' | '), 20, y);
-      y += 15;
+      
+      // Group skills in rows
+      const skillsPerRow = 3;
+      for (let i = 0; i < formData.skills.length; i += skillsPerRow) {
+        const row = formData.skills.slice(i, i + skillsPerRow);
+        doc.text('• ' + row.join('  • '), 20, y);
+        y += 8;
+      }
+      y += 10;
     }
 
+    // Projects
     if (formData.projects.length > 0 && formData.projects[0].name) {
-      doc.setFontSize(14);
+      doc.setFontSize(16);
       doc.setTextColor(99, 102, 241);
       doc.text('PROJECTS', 20, y);
-      y += 8;
+      y += 10;
 
       formData.projects.forEach(proj => {
         if (proj.name) {
-          doc.setFontSize(11);
+          doc.setFontSize(12);
           doc.setTextColor(0, 0, 0);
+          doc.setFont('helvetica', 'bold');
           doc.text(proj.name, 20, y);
-          y += 6;
+          y += 7;
+          doc.setFont('helvetica', 'normal');
           doc.setFontSize(10);
           doc.setTextColor(60, 60, 60);
           if (proj.description) {
             const descLines = doc.splitTextToSize(proj.description, pageWidth - 40);
             doc.text(descLines, 20, y);
-            y += descLines.length * 5;
+            y += descLines.length * 5 + 3;
           }
           if (proj.technologies) {
             doc.setTextColor(139, 92, 246);
+            doc.setFont('helvetica', 'italic');
             doc.text(`Technologies: ${proj.technologies}`, 20, y);
             y += 8;
           }
+          y += 5;
         }
       });
     }
 
+    // Experience
     if (formData.experience.length > 0 && formData.experience[0].company) {
-      doc.setFontSize(14);
+      doc.setFontSize(16);
       doc.setTextColor(99, 102, 241);
-      doc.text('EXPERIENCE', 20, y);
-      y += 8;
+      doc.text('PROFESSIONAL EXPERIENCE', 20, y);
+      y += 10;
 
       formData.experience.forEach(exp => {
         if (exp.company) {
-          doc.setFontSize(11);
+          doc.setFontSize(12);
           doc.setTextColor(0, 0, 0);
-          doc.text(`${exp.role} at ${exp.company}`, 20, y);
-          y += 6;
+          doc.setFont('helvetica', 'bold');
+          doc.text(`${exp.role}`, 20, y);
+          y += 7;
+          doc.setFont('helvetica', 'normal');
           doc.setFontSize(10);
           doc.setTextColor(100, 100, 100);
-          doc.text(exp.duration, 20, y);
+          doc.text(`${exp.company} | ${exp.duration}`, 20, y);
           y += 6;
           if (exp.responsibilities) {
             const respLines = doc.splitTextToSize(exp.responsibilities, pageWidth - 40);
             doc.text(respLines, 20, y);
-            y += respLines.length * 5 + 5;
+            y += respLines.length * 5 + 8;
           }
         }
       });
     }
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text('Generated by SmartBDU AI', pageWidth / 2, pageHeight - 10, { align: 'center' });
 
     doc.save(`${formData.fullName.replace(/\s+/g, '_')}_CV.pdf`);
   };

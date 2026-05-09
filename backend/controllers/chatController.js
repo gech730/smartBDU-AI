@@ -29,8 +29,7 @@ export const sendMessage = async (req, res) => {
         favoriteSubjects: user.favoriteSubjects, 
         goals: user.goals,
         preferredDepartment: user.preferredDepartment
-      },
-      conversationHistory
+      }
     );
 
     await Message.create({

@@ -35,7 +35,7 @@ const ProtectedRoute = ({ children }) => {
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
       <Sidebar />
       <main className="ml-64 p-8">
         {children}

@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
@@ -21,8 +23,19 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:3000'].filter(Boolean);
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Too many requests, please try again later.' }
+});
+
+app.use(helmet());
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
+app.use(apiLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
@@ -46,6 +59,15 @@ app.get('/api/health', async (req, res) => {
     features: ['auth', 'chat', 'departments', 'schedules', 'announcements', 'courses', 'campus', 'ai'],
     ai: aiStatus
   });
+});
+
+app.use((req, res) => {
+  res.status(404).json({ success: false, error: 'API route not found' });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.statusCode || 500).json({ success: false, error: err.message || 'Server Error' });
 });
 
 const PORT = process.env.PORT || 5000;

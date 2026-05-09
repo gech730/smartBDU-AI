@@ -285,7 +285,7 @@ class SetupValidator {
     console.log('='.repeat(60));
     
     const passed = this.results.filter(r => r.type === 'success').length;
-    const total = this.results.filter(r => r.type !== 'title').length;
+    const total = this.results.filter(r => r.type === 'success' || r.type === 'error' || r.type === 'warning').length;
     
     this.log(`Checks Passed: ${passed}/${total}`, passed === total ? 'success' : 'warning');
     

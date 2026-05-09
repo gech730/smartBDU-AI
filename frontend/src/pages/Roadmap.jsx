@@ -85,80 +85,139 @@ const Roadmap = () => {
   const exportPDF = (roadmap) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     let y = 20;
 
+    // Header with gradient background
+    doc.setFillColor(99, 102, 241);
+    doc.rect(0, 0, pageWidth, 50, 'F');
+    
+    doc.setFontSize(24);
+    doc.setTextColor(255, 255, 255);
+    doc.text('SmartBDU AI', pageWidth / 2, 25, { align: 'center' });
+    
+    doc.setFontSize(18);
+    doc.setTextColor(255, 255, 255);
+    doc.text('Learning Roadmap', pageWidth / 2, 40, { align: 'center' });
+    
+    y = 70;
+
+    // Title
     doc.setFontSize(20);
-    doc.setTextColor(99, 102, 241);
-    doc.text('SmartBDU AI - Learning Roadmap', pageWidth / 2, y, { align: 'center' });
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'bold');
+    doc.text(roadmap.title, pageWidth / 2, y, { align: 'center' });
     y += 15;
 
-    doc.setFontSize(16);
-    doc.setTextColor(0, 0, 0);
-    doc.text(roadmap.title, pageWidth / 2, y, { align: 'center' });
-    y += 10;
-
+    // Target and duration
     doc.setFontSize(12);
     doc.setTextColor(100, 100, 100);
-    doc.text(`Target: ${roadmap.targetRole || roadmap.interest} | ${roadmap.duration}`, pageWidth / 2, y, { align: 'center' });
-    y += 15;
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Target: ${roadmap.targetRole || roadmap.interest} | Duration: ${roadmap.duration}`, pageWidth / 2, y, { align: 'center' });
+    y += 20;
 
+    // Overview
     if (roadmap.overview) {
+      doc.setFontSize(14);
+      doc.setTextColor(99, 102, 241);
+      doc.setFont('helvetica', 'bold');
+      doc.text('OVERVIEW', 20, y);
+      y += 10;
       doc.setFontSize(11);
       doc.setTextColor(60, 60, 60);
+      doc.setFont('helvetica', 'normal');
       const overviewLines = doc.splitTextToSize(roadmap.overview, pageWidth - 40);
       doc.text(overviewLines, 20, y);
-      y += overviewLines.length * 6 + 10;
+      y += overviewLines.length * 6 + 15;
     }
 
+    // Required Skills
     if (roadmap.skills?.length) {
-      doc.setFontSize(12);
+      doc.setFontSize(14);
       doc.setTextColor(99, 102, 241);
-      doc.text('Required Skills:', 20, y);
-      y += 8;
-      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('REQUIRED SKILLS', 20, y);
+      y += 10;
+      doc.setFontSize(11);
       doc.setTextColor(60, 60, 60);
-      doc.text(roadmap.skills.join(', '), 20, y);
+      doc.setFont('helvetica', 'normal');
+      
+      // Group skills in rows
+      const skillsPerRow = 3;
+      for (let i = 0; i < roadmap.skills.length; i += skillsPerRow) {
+        const row = roadmap.skills.slice(i, i + skillsPerRow);
+        doc.text('• ' + row.join('  • '), 20, y);
+        y += 8;
+      }
       y += 10;
     }
 
+    // Timeline
     if (roadmap.timeline) {
-      doc.setFontSize(12);
+      doc.setFontSize(14);
       doc.setTextColor(99, 102, 241);
-      doc.text('Timeline:', 20, y);
-      y += 8;
-      doc.setFontSize(10);
-      doc.setTextColor(60, 60, 60);
-      doc.text(`Beginner: ${roadmap.timeline.beginner} | Intermediate: ${roadmap.timeline.intermediate} | Advanced: ${roadmap.timeline.advanced}`, 20, y);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TIMELINE', 20, y);
       y += 10;
-    }
-
-    if (roadmap.tools?.length) {
-      doc.setFontSize(12);
-      doc.setTextColor(99, 102, 241);
-      doc.text('Tools & Technologies:', 20, y);
-      y += 8;
-      doc.setFontSize(10);
+      doc.setFontSize(11);
       doc.setTextColor(60, 60, 60);
-      doc.text(roadmap.tools.join(', '), 20, y);
-      y += 10;
-    }
-
-    if (roadmap.careers?.length) {
-      doc.setFontSize(12);
-      doc.setTextColor(99, 102, 241);
-      doc.text('Career Opportunities:', 20, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Beginner: ${roadmap.timeline.beginner}`, 20, y);
       y += 8;
-      doc.setFontSize(10);
-      doc.setTextColor(60, 60, 60);
-      doc.text(roadmap.careers.join(', '), 20, y);
+      doc.text(`Intermediate: ${roadmap.timeline.intermediate}`, 20, y);
+      y += 8;
+      doc.text(`Advanced: ${roadmap.timeline.advanced}`, 20, y);
       y += 15;
     }
 
-    y += 5;
-    doc.setFontSize(14);
+    // Tools & Technologies
+    if (roadmap.tools?.length) {
+      doc.setFontSize(14);
+      doc.setTextColor(99, 102, 241);
+      doc.setFont('helvetica', 'bold');
+      doc.text('TOOLS & TECHNOLOGIES', 20, y);
+      y += 10;
+      doc.setFontSize(11);
+      doc.setTextColor(60, 60, 60);
+      doc.setFont('helvetica', 'normal');
+      
+      // Group tools in rows
+      const toolsPerRow = 3;
+      for (let i = 0; i < roadmap.tools.length; i += toolsPerRow) {
+        const row = roadmap.tools.slice(i, i + toolsPerRow);
+        doc.text('• ' + row.join('  • '), 20, y);
+        y += 8;
+      }
+      y += 10;
+    }
+
+    // Career Opportunities
+    if (roadmap.careers?.length) {
+      doc.setFontSize(14);
+      doc.setTextColor(99, 102, 241);
+      doc.setFont('helvetica', 'bold');
+      doc.text('CAREER OPPORTUNITIES', 20, y);
+      y += 10;
+      doc.setFontSize(11);
+      doc.setTextColor(60, 60, 60);
+      doc.setFont('helvetica', 'normal');
+      
+      // Group careers in rows
+      const careersPerRow = 2;
+      for (let i = 0; i < roadmap.careers.length; i += careersPerRow) {
+        const row = roadmap.careers.slice(i, i + careersPerRow);
+        doc.text('• ' + row.join('  • '), 20, y);
+        y += 8;
+      }
+      y += 20;
+    }
+
+    // Learning Steps
+    doc.setFontSize(16);
     doc.setTextColor(99, 102, 241);
-    doc.text('Learning Steps', pageWidth / 2, y, { align: 'center' });
-    y += 10;
+    doc.setFont('helvetica', 'bold');
+    doc.text('LEARNING STEPS', pageWidth / 2, y, { align: 'center' });
+    y += 15;
 
     roadmap.steps?.forEach((step, idx) => {
       if (y > 250) {
@@ -166,20 +225,27 @@ const Roadmap = () => {
         y = 20;
       }
 
+      // Step header with background
+      doc.setFillColor(248, 250, 252);
+      doc.rect(15, y - 5, pageWidth - 30, 12, 'F');
+      
       doc.setFontSize(14);
       doc.setTextColor(99, 102, 241);
-      doc.text(`${idx + 1}. ${step.title}`, 20, y);
-      y += 8;
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${idx + 1}. ${step.title}`, 20, y + 2);
+      y += 15;
 
       doc.setFontSize(11);
       doc.setTextColor(60, 60, 60);
+      doc.setFont('helvetica', 'normal');
       const descLines = doc.splitTextToSize(step.description, pageWidth - 40);
       doc.text(descLines, 20, y);
-      y += descLines.length * 6 + 5;
+      y += descLines.length * 6 + 8;
 
       if (step.duration) {
         doc.setFontSize(10);
         doc.setTextColor(139, 92, 246);
+        doc.setFont('helvetica', 'italic');
         doc.text(`Duration: ${step.duration}`, 20, y);
         y += 6;
       }
@@ -187,6 +253,7 @@ const Roadmap = () => {
       if (step.skills?.length) {
         doc.setFontSize(10);
         doc.setTextColor(6, 182, 212);
+        doc.setFont('helvetica', 'italic');
         doc.text(`Skills: ${step.skills.join(', ')}`, 20, y);
         y += 6;
       }
@@ -194,6 +261,7 @@ const Roadmap = () => {
       if (step.resources?.length) {
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
+        doc.setFont('helvetica', 'italic');
         doc.text(`Resources: ${step.resources.join(', ')}`, 20, y);
         y += 6;
       }
@@ -201,9 +269,11 @@ const Roadmap = () => {
       y += 10;
     });
 
-    doc.setFontSize(10);
+    // Footer
+    doc.setFontSize(8);
     doc.setTextColor(150, 150, 150);
-    doc.text('Generated by SmartBDU AI', pageWidth / 2, 285, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.text('Generated by SmartBDU AI', pageWidth / 2, pageHeight - 10, { align: 'center' });
 
     const filename = (roadmap.targetRole || roadmap.interest || 'roadmap').replace(/\s+/g, '_');
     doc.save(`${filename}_roadmap.pdf`);

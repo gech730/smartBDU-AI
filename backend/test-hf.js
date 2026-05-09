@@ -6,7 +6,7 @@ const MODEL = process.env.HF_MODEL;
 async function testHuggingFace() {
   console.log('🧪 Testing HuggingFace API...\n');
   console.log(`Model: ${MODEL}\n`);
-  
+
   try {
     console.log('Sending test request...\n');
     

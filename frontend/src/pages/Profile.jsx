@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { User, Mail, Target, BookOpen, Save, Loader2 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { User, Mail, Target, BookOpen, Save, Loader2, Camera, Upload } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
@@ -12,6 +12,9 @@ const Profile = () => {
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [avatar, setAvatar] = useState(user?.avatar || null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef(null);
 
   const handleSave = async () => {
     setSaving(true);
@@ -24,6 +27,52 @@ const Profile = () => {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleAvatarUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setMessage('Please select a valid image file');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage('Image size must be less than 5MB');
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setMessage('');
+
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append('avatar', file);
+
+      // For now, we'll simulate the upload and use a data URL
+      // In a real app, you'd upload to your backend
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const avatarUrl = e.target.result;
+        setAvatar(avatarUrl);
+        
+        // Update user profile with avatar
+        await updateUser({ ...formData, avatar: avatarUrl });
+        setMessage('Avatar updated successfully!');
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      setMessage('Failed to upload avatar');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   const addItem = (field, value) => {
@@ -83,8 +132,32 @@ const Profile = () => {
 
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 space-y-6">
         <div className="flex items-center gap-4 pb-6 border-b border-gray-200 dark:border-slate-700">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white text-2xl font-bold">
-            {user?.name?.charAt(0).toUpperCase()}
+          <div className="relative">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white text-2xl font-bold overflow-hidden">
+              {avatar ? (
+                <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                user?.name?.charAt(0).toUpperCase()
+              )}
+            </div>
+            <button
+              onClick={triggerFileInput}
+              disabled={uploadingAvatar}
+              className="absolute bottom-0 right-0 bg-primary-500 hover:bg-primary-600 text-white p-2 rounded-full shadow-lg transition-colors disabled:opacity-50"
+            >
+              {uploadingAvatar ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Camera className="w-4 h-4" />
+              )}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+            />
           </div>
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">{user?.name}</h2>

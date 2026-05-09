@@ -39,6 +39,10 @@ export const register = async (req, res) => {
       user: user.toPublicJSON()
     });
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map((err) => err.message).join(', ');
+      return res.status(400).json({ success: false, error: messages });
+    }
     res.status(500).json({ success: false, error: error.message });
   }
 };

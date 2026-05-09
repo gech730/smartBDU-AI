@@ -60,7 +60,7 @@ npm run dev
 
 ```env
 # Server
-PORT=4000
+PORT=5000
 MONGODB_URI=mongodb://localhost:27017/smartbdu
 JWT_SECRET=your-secret-key
 
@@ -237,7 +237,7 @@ GET    /api/health/ai                       # AI provider status
 
 **Request:**
 ```bash
-curl -X POST http://localhost:4000/api/chat \
+curl -X POST http://localhost:5000/api/chat \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <your_jwt_token>" \
   -d '{"message": "Tell me about Computer Science at BDU"}'
@@ -260,7 +260,7 @@ curl -X POST http://localhost:4000/api/chat \
 
 **Request:**
 ```bash
-curl -X POST http://localhost:4000/api/departments/recommend \
+curl -X POST http://localhost:5000/api/departments/recommend \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <your_jwt_token>" \
   -d '{
@@ -416,20 +416,20 @@ All API errors return consistent JSON:
 
 ```bash
 # Health check
-curl http://localhost:4000/api/health
+curl http://localhost:5000/api/health
 
 # Register
-curl -X POST http://localhost:4000/api/auth/register \
+curl -X POST http://localhost:5000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{"email":"test@bdu.edu.et","password":"test123","name":"Test User"}'
 
 # Login
-curl -X POST http://localhost:4000/api/auth/login \
+curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@bdu.edu.et","password":"test123"}'
 
 # Chat (replace TOKEN with actual token)
-curl -X POST http://localhost:4000/api/chat \
+curl -X POST http://localhost:5000/api/chat \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer TOKEN" \
   -d '{"message":"What is Computer Science about?"}'
@@ -438,7 +438,7 @@ curl -X POST http://localhost:4000/api/chat \
 ### Testing with Postman
 
 1. Import the routes
-2. Set base URL: `http://localhost:4000`
+2. Set base URL: `http://localhost:5000`
 3. Add `Authorization: Bearer <token>` header for protected routes
 4. Test endpoints
 
@@ -463,7 +463,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
 COPY . .
-EXPOSE 4000
+EXPOSE 5000
 CMD ["npm", "start"]
 ```
 
@@ -479,7 +479,7 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/smartbdu
 
 1. **Check AI Provider Status**
    ```bash
-   curl http://localhost:4000/api/health/ai
+   curl http://localhost:5000/api/health/ai
    ```
 
 2. **Ollama Issues**

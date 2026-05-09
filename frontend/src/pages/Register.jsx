@@ -6,9 +6,14 @@ import { useAuth } from '../context/AuthContext';
 const Register = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
+    universityId: '',
     name: '',
     email: '',
     password: '',
+    department: '',
+    yearOfStudy: '1',
+    program: 'undergraduate',
+    phone: '',
     interests: [],
     favoriteSubjects: [],
     goals: []
@@ -25,6 +30,9 @@ const Register = () => {
 
   const interestOptions = ['Technology', 'Healthcare', 'Business', 'Engineering', 'Science', 'Arts', 'Agriculture', 'Law', 'Education'];
   const subjectOptions = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 'Languages', 'History', 'Geography', 'Economics'];
+  const departmentOptions = ['Computer Science', 'Information Systems', 'Electrical Engineering', 'Mechanical Engineering', 'Business Administration', 'Law', 'Nursing', 'Architecture'];
+  const programOptions = ['undergraduate', 'masters', 'phd'];
+  const yearOptions = ['1', '2', '3', '4', '5', '6'];
   const goalOptions = ['Get a good job', 'Start my own business', 'Pursue higher studies', 'Make a difference', 'Work abroad', 'Become an expert'];
 
   const addInterest = (interest) => {
@@ -69,7 +77,7 @@ const Register = () => {
       await register(formData);
       navigate('/chat');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.response?.data?.error || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -107,6 +115,17 @@ const Register = () => {
 
           {step === 1 && (
             <form onSubmit={(e) => { e.preventDefault(); setStep(2); }} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">University ID</label>
+                <input
+                  type="text"
+                  value={formData.universityId}
+                  onChange={(e) => setFormData({ ...formData, universityId: e.target.value })}
+                  className="input-field"
+                  placeholder="BDU1234567"
+                  required
+                />
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Full Name</label>
                 <input
@@ -149,6 +168,56 @@ const Register = () => {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Department</label>
+                <select
+                  value={formData.department}
+                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                  className="input-field"
+                  required
+                >
+                  <option value="">Select your department</option>
+                  {departmentOptions.map((dept) => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Year of Study</label>
+                  <select
+                    value={formData.yearOfStudy}
+                    onChange={(e) => setFormData({ ...formData, yearOfStudy: e.target.value })}
+                    className="input-field"
+                  >
+                    {yearOptions.map((year) => (
+                      <option key={year} value={year}>{year}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Program</label>
+                  <select
+                    value={formData.program}
+                    onChange={(e) => setFormData({ ...formData, program: e.target.value })}
+                    className="input-field"
+                  >
+                    {programOptions.map((program) => (
+                      <option key={program} value={program}>{program}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Phone</label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="input-field"
+                  placeholder="Optional phone number"
+                />
               </div>
               <button type="submit" className="btn-primary w-full flex items-center justify-center gap-2">
                 Next <ArrowRight className="w-5 h-5" />

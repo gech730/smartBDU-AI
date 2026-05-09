@@ -1,5 +1,5 @@
 import express from 'express';
-import { getDormitories, getDormitoryById, getCafeterias, getCafeteriaById, getTodayMenu, getTransport, getTransportById } from '../controllers\campusController.js';
+import { getDormitories, getDormitoryById, getCafeterias, getCafeteriaById, getTodayMenu, getTransport, getTransportById } from '../controllers/campusController.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();

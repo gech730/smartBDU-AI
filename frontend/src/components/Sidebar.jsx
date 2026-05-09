@@ -54,22 +54,22 @@ const Sidebar = () => {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-slate-800 border-r border-slate-700 flex flex-col z-50">
-      <div className="p-6 border-b border-slate-700">
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 flex flex-col z-50">
+      <div className="p-6 border-b border-gray-200 dark:border-slate-700">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
             <Sparkles className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">SmartBDU</h1>
-            <p className="text-xs text-slate-400">Bahir Dar University</p>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">SmartBDU</h1>
+            <p className="text-xs text-gray-500 dark:text-slate-400">Bahir Dar University</p>
           </div>
         </div>
       </div>
 
       <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
         <div>
-          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-4">
+          <h2 className="text-xs font-semibold text-gray-500 dark:text-slate-500 uppercase tracking-wider mb-2 px-4">
             Main Menu
           </h2>
           <div className="space-y-1">
@@ -93,7 +93,7 @@ const Sidebar = () => {
         </div>
 
         <div>
-          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-4">
+          <h2 className="text-xs font-semibold text-gray-500 dark:text-slate-500 uppercase tracking-wider mb-2 px-4">
             Campus
           </h2>
           <div className="space-y-1">

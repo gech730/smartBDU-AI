@@ -92,7 +92,7 @@ What would you like to explore today?`
               <Sparkles className="w-7 h-7 text-primary-500" />
               AI Assistant
             </h1>
-            <p className="text-gray-500 dark:text-slate-400 text-sm mt-1">Powered by GPT-4</p>
+            <p className="text-gray-500 dark:text-slate-400 text-sm mt-1">Powered by Llama 3.2</p>
           </div>
           <button
             onClick={handleClearHistory}
