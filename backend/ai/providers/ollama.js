@@ -42,19 +42,26 @@ export const chat = async (messages) => {
 export const getStatus = async () => {
   try {
     const client = getClient();
-    await client.get('/api/tags');
+    const response = await client.get('/api/tags');
+    const models = response.data?.models || [];
+    const currentModel = models.find(m => m.name === getModel());
+    
     return {
       provider: 'ollama',
       available: true,
       model: getModel(),
-      url: getBaseUrl()
+      url: getBaseUrl(),
+      models: models.map(m => m.name),
+      instructions: 'To install Mistral 7B: ollama pull mistral'
     };
-  } catch {
+  } catch (error) {
     return {
       provider: 'ollama',
       available: false,
       model: getModel(),
-      url: getBaseUrl()
+      url: getBaseUrl(),
+      error: 'Ollama server not running',
+      instructions: 'Start Ollama: ollama serve'
     };
   }
 };

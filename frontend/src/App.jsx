@@ -4,8 +4,14 @@ import { ThemeProvider } from './context/ThemeContext';
 import Sidebar from './components/Sidebar';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 import Chat from './pages/Chat';
 import Departments from './pages/Departments';
+import Schedule from './pages/Schedule';
+import Announcements from './pages/Announcements';
+import Courses from './pages/Courses';
+import CampusServices from './pages/CampusServices';
+import Directory from './pages/Directory';
 import Career from './pages/Career';
 import Roadmap from './pages/Roadmap';
 import Profile from './pages/Profile';
@@ -18,8 +24,8 @@ const ProtectedRoute = ({ children }) => {
   
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900">
-        <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -29,10 +35,9 @@ const ProtectedRoute = ({ children }) => {
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-gray-900">
       <Sidebar />
       <main className="ml-64 p-8">
-      <p>hello welcome</p>
         {children}
       </main>
     </div>
@@ -44,18 +49,26 @@ const AppRoutes = () => {
   
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/chat" /> : <Login />} />
-      <Route path="/register" element={user ? <Navigate to="/chat" /> : <Register />} />
-      <Route path="/chat" element={<ProtectedRoute><Layout><Chat /></Layout></ProtectedRoute>} />
+      <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+      <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
+      
+      <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+      <Route path="/schedule" element={<ProtectedRoute><Layout><Schedule /></Layout></ProtectedRoute>} />
+      <Route path="/announcements" element={<ProtectedRoute><Layout><Announcements /></Layout></ProtectedRoute>} />
+      <Route path="/courses" element={<ProtectedRoute><Layout><Courses /></Layout></ProtectedRoute>} />
+      <Route path="/campus" element={<ProtectedRoute><Layout><CampusServices /></Layout></ProtectedRoute>} />
+      <Route path="/directory" element={<ProtectedRoute><Layout><Directory /></Layout></ProtectedRoute>} />
       <Route path="/departments" element={<ProtectedRoute><Layout><Departments /></Layout></ProtectedRoute>} />
+      <Route path="/chat" element={<ProtectedRoute><Layout><Chat /></Layout></ProtectedRoute>} />
       <Route path="/career" element={<ProtectedRoute><Layout><Career /></Layout></ProtectedRoute>} />
       <Route path="/career-recommend" element={<ProtectedRoute><Layout><CareerRecommendations /></Layout></ProtectedRoute>} />
       <Route path="/roadmap" element={<ProtectedRoute><Layout><Roadmap /></Layout></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><Layout><Analytics /></Layout></ProtectedRoute>} />
       <Route path="/cv-generator" element={<ProtectedRoute><Layout><CVGenerator /></Layout></ProtectedRoute>} />
-      <Route path="/" element={<Navigate to="/chat" />} />
-      <Route path="*" element={<Navigate to="/chat" />} />
+      
+      <Route path="/" element={<Navigate to="/dashboard" />} />
+      <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>
   );
 };

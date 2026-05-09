@@ -9,17 +9,20 @@ export const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.id).select('-password');
+      req.user.id = decoded.id;
       next();
     } catch (error) {
-      res.status(401).json({ message: 'Not authorized, token failed' });
+      res.status(401).json({ success: false, error: 'Not authorized, token failed' });
     }
-  }
-
-  if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
+  } else {
+    res.status(401).json({ success: false, error: 'Not authorized, no token' });
   }
 };
 
-export const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+export const adminOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ success: false, error: 'Admin access required' });
+  }
 };

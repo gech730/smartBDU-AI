@@ -16,40 +16,74 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      authAPI.getProfile()
-        .then(res => setUser(res.data))
-        .catch(() => localStorage.removeItem('token'))
-        .finally(() => setLoading(false));
-    } else {
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      const savedUser = localStorage.getItem('user');
+      
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      }
+      
+      if (token) {
+        try {
+          const res = await authAPI.getProfile();
+          if (res.success && res.user) {
+            setUser(res.user);
+            localStorage.setItem('user', JSON.stringify(res.user));
+          }
+        } catch (error) {
+          console.error('Auth init error:', error);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      }
       setLoading(false);
-    }
+    };
+
+    initAuth();
   }, []);
 
-  const login = async (email, password) => {
-    const res = await authAPI.login({ email, password });
-    localStorage.setItem('token', res.data.token);
-    setUser(res.data);
-    return res.data;
+  const login = async (email, password, universityId) => {
+    const credentials = universityId 
+      ? { universityId, password }
+      : { email, password };
+    
+    const res = await authAPI.login(credentials);
+    
+    if (res.success && res.user) {
+      setUser(res.user);
+      localStorage.setItem('user', JSON.stringify(res.user));
+    }
+    
+    return res;
   };
 
   const register = async (data) => {
     const res = await authAPI.register(data);
-    localStorage.setItem('token', res.data.token);
-    setUser(res.data);
-    return res.data;
+    
+    if (res.success && res.user) {
+      setUser(res.user);
+      localStorage.setItem('user', JSON.stringify(res.user));
+    }
+    
+    return res;
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
   };
 
   const updateUser = async (data) => {
     const res = await authAPI.updateProfile(data);
-    setUser(res.data);
-    return res.data;
+    
+    if (res.success && res.user) {
+      setUser(res.user);
+      localStorage.setItem('user', JSON.stringify(res.user));
+    }
+    
+    return res;
   };
 
   return (

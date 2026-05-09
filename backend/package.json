@@ -1,12 +1,14 @@
 {
   "name": "smartbdu-backend",
   "version": "1.0.0",
-  "description": "SmartBDU AI Backend Server",
+  "description": "SmartBDU AI Backend Server - Intelligent University Assistant",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "validate": "node utils/validateSetup.js",
+    "seed": "node utils/seed.js"
   },
   "dependencies": {
     "axios": "^1.6.2",

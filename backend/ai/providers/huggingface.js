@@ -16,7 +16,7 @@ const getClient = () => {
         'Authorization': `Bearer ${process.env.HF_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      timeout: 180000
+      timeout: 120000
     });
   }
   return hfClient;
@@ -28,8 +28,9 @@ export const chat = async (messages) => {
   const response = await client.post('/chat/completions', {
     model: HF_MODEL,
     messages: messages,
-    max_tokens: 1024,
-    temperature: 0.7
+    max_tokens: 512,
+    temperature: 0.7,
+    stream: false
   });
 
   if (response.data?.choices?.[0]?.message?.content) {
@@ -39,8 +40,27 @@ export const chat = async (messages) => {
   throw new Error('Invalid response from Hugging Face');
 };
 
-export const getStatus = () => ({
-  provider: 'huggingface',
-  available: !!process.env.HF_API_KEY,
-  model: HF_MODEL
-});
+export const getStatus = async () => {
+  try {
+    const client = getClient();
+    await client.post('/chat/completions', {
+      model: HF_MODEL,
+      messages: [{ role: 'user', content: 'Hi' }],
+      max_tokens: 10
+    });
+    
+    return {
+      provider: 'huggingface',
+      available: true,
+      model: HF_MODEL,
+      status: 'ready'
+    };
+  } catch (error) {
+    return {
+      provider: 'huggingface',
+      available: false,
+      model: HF_MODEL,
+      error: error.response?.data?.error?.message || error.message
+    };
+  }
+};

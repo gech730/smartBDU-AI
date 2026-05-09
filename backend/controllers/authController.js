@@ -1,98 +1,149 @@
 import User from '../models/User.js';
-import { generateToken } from '../middleware/auth.js';
+import jwt from 'jsonwebtoken';
+
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+};
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, interests, favoriteSubjects, goals } = req.body;
+    const { universityId, email, password, name, role, department, yearOfStudy, program, phone } = req.body;
 
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ $or: [{ email }, { universityId }] });
     if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ 
+        success: false, 
+        error: userExists.email === email ? 'Email already registered' : 'University ID already registered' 
+      });
     }
 
     const user = await User.create({
-      name,
+      universityId,
       email,
       password,
-      interests: interests || [],
-      favoriteSubjects: favoriteSubjects || [],
-      goals: goals || []
+      name,
+      role: role || 'student',
+      department,
+      yearOfStudy,
+      program: program || 'undergraduate',
+      phone
     });
 
+    const token = generateToken(user._id);
+    user.lastLogin = new Date();
+    await user.save();
+
     res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      interests: user.interests,
-      favoriteSubjects: user.favoriteSubjects,
-      goals: user.goals,
-      theme: user.theme,
-      token: generateToken(user._id)
+      success: true,
+      token,
+      user: user.toPublicJSON()
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, universityId } = req.body;
 
-    const user = await User.findOne({ email });
-    if (user && (await user.matchPassword(password))) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        interests: user.interests,
-        favoriteSubjects: user.favoriteSubjects,
-        goals: user.goals,
-        theme: user.theme,
-        token: generateToken(user._id)
-      });
-    } else {
-      res.status(401).json({ message: 'Invalid email or password' });
+    let user;
+    if (universityId) {
+      user = await User.findOne({ universityId });
+    } else if (email) {
+      user = await User.findOne({ email });
     }
+
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
+
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
+
+    const token = generateToken(user._id);
+    user.lastLogin = new Date();
+    await user.save();
+
+    res.json({
+      success: true,
+      token,
+      user: user.toPublicJSON()
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
 export const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
-    res.json(user);
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+    res.json({ success: true, user: user.toPublicJSON() });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
 export const updateProfile = async (req, res) => {
   try {
-    const { name, interests, favoriteSubjects, goals, theme } = req.body;
+    const allowedUpdates = ['name', 'phone', 'bio', 'avatar', 'interests', 'favoriteSubjects', 'goals', 'skills'];
+    const updates = {};
 
-    const user = await User.findById(req.user._id);
-    if (user) {
-      user.name = name || user.name;
-      user.interests = interests || user.interests;
-      user.favoriteSubjects = favoriteSubjects || user.favoriteSubjects;
-      user.goals = goals || user.goals;
-      if (theme) user.theme = theme;
+    allowedUpdates.forEach(field => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
 
-      const updatedUser = await user.save();
-      res.json({
-        _id: updatedUser._id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        interests: updatedUser.interests,
-        favoriteSubjects: updatedUser.favoriteSubjects,
-        goals: updatedUser.goals,
-        theme: updatedUser.theme
-      });
-    } else {
-      res.status(404).json({ message: 'User not found' });
-    }
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      updates,
+      { new: true, runValidators: true }
+    );
+
+    res.json({ success: true, user: user.toPublicJSON() });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+export const getDirectory = async (req, res) => {
+  try {
+    const { search, department, role, page = 1, limit = 20 } = req.query;
+    const query = { isActive: true };
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { universityId: { $regex: search, $options: 'i' } },
+        { department: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    if (department) query.department = department;
+    if (role) query.role = role;
+
+    const users = await User.find(query)
+      .select('-password -notifications')
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .sort({ name: 1 });
+
+    const count = await User.countDocuments(query);
+
+    res.json({
+      success: true,
+      users,
+      totalPages: Math.ceil(count / limit),
+      currentPage: page,
+      total: count
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 };

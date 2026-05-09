@@ -10,6 +10,10 @@ import careerRoutes from './routes/careerRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import cvRoutes from './routes/cvRoutes.js';
 import careerRecommendationRoutes from './routes/careerRecommendationRoutes.js';
+import scheduleRoutes from './routes/scheduleRoutes.js';
+import announcementRoutes from './routes/announcementRoutes.js';
+import courseRoutes from './routes/courseRoutes.js';
+import campusRoutes from './routes/campusRoutes.js';
 import seedAll from './utils/seed.js';
 import { checkAPIStatus } from './ai/service.js';
 
@@ -28,12 +32,18 @@ app.use('/api/career', careerRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/cv', cvRoutes);
 app.use('/api/career-recommend', careerRecommendationRoutes);
+app.use('/api/schedules', scheduleRoutes);
+app.use('/api/announcements', announcementRoutes);
+app.use('/api/courses', courseRoutes);
+app.use('/api/campus', campusRoutes);
 
 app.get('/api/health', async (req, res) => {
   const aiStatus = await checkAPIStatus();
   res.json({ 
     status: 'ok', 
     message: 'SmartBDU AI Server is running',
+    version: '2.0.0',
+    features: ['auth', 'chat', 'departments', 'schedules', 'announcements', 'courses', 'campus', 'ai'],
     ai: aiStatus
   });
 });
@@ -54,7 +64,9 @@ const startServer = async () => {
     }
     
     app.listen(PORT, () => {
-      console.log(`✓ Server running on http://localhost:${PORT}`);
+      console.log(`✓ SmartBDU Server running on http://localhost:${PORT}`);
+      console.log(`✓ API: http://localhost:${PORT}/api`);
+      console.log(`✓ Health: http://localhost:${PORT}/api/health`);
     });
   } catch (error) {
     console.error('Failed to start server:', error.message);
